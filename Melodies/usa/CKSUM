@@ -1,0 +1,31 @@
+CHEKSUMS for files from /essen/america/usa
+at https://kern.humdrum.org
+downloaded on Tue Dec 17 07:54:49 PST 2024
+A current version of these files may be downloaded using the address:
+	https://kern.humdrum.org/data?f=zip&l=/essen/america/usa
+==================================================================
+
+The following lines list the checksum values for all score
+files in this downloaded zip archive.
+
+A "checksum" value is an error-checking mechanism that may
+assist in determining whether a file has been modified or data
+garbled due to transmission or faulty storage.  The "checksum A"
+value uses the POSIX 2 checksum algorithm.  The "checksum B" value
+uses the CCITT cyclic redundancy check algorithm.
+
+Note that checksum commands will differ for ASCII files formatted
+in DOS/Windows style or Unix/Macintosh formatted text.  The files in
+this ZIP archive were in Unix/Macintosh line formatting style when the
+checksums were compiled.
+
+checksum A   checksum B    filename
+===================================================================
+
+3106070501 822 usa01.krn
+533837152 772 usa02.krn
+2546507725 795 usa03.krn
+2102154267 605 usa04.krn
+244248726 685 usa05.krn
+3517351099 1103 usa06.krn
+1987676047 739 usa07.krn
