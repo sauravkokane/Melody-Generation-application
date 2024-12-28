@@ -47,7 +47,7 @@ def transpose(song):
 
     print(key)
 
-    # get interval for transposition. E.g., Bmaj -> Cmaj
+    # get interval for transposition. E.g., Bmaj -> Cmaj, Dmin -> Amin
     if key.mode == "major":
         interval = m21.interval.Interval(key.tonic, m21.pitch.Pitch("C"))
     elif key.mode == "minor":
@@ -57,6 +57,23 @@ def transpose(song):
     transposed_song = song.transpose(interval)
     return transposed_song
 
+def encode(song, time_step=0.25):
+    # p = 60, d= 1.0 => [60, "_", "_", "_"]
+    
+    for event in song.flat.notesAndRests:
+        # handle notes
+        if isinstance(event, m21.note.Note):
+            symbol = event.pitch.midi   # 60
+        
+        # handle rests
+        elif isinstance(event, m21.note.Rest):
+            symbol = "r"
+        
+        # convert the note/rest into time series notation
+        steps = event.duration.quarterLength // time_step
+        
+
+
 def preprocess(dataset_path):
     # Load the Folk songs
     loaded_songs = load_songs_in_kern(dataset_path)
@@ -65,17 +82,22 @@ def preprocess(dataset_path):
         # Filter out the songs which have unacceptable duration
         if not has_acceptable_duration(song, ACCEPTABLE_DURATIONS):
             continue
+
         # Transpose songs to C Major / A Minor scale
         transposed_song = transpose(song)
+
         # Encode songs with music time series representation
+
 
         # Save songs in a test file
 
 
 if __name__ == "__main__":
     songs = load_songs_in_kern(KERN_DATASET_PATH)
+    # list_of_songs = [ sg.metadata.title for sg in songs ]
+    # print(list_of_songs)
     # random.shuffle(songs)
-    song = songs[0]
+    song = songs[1]
     print(f"Loaded {len(songs)} songs.")
     print(f"Has acceptable duration? {has_acceptable_duration(song, ACCEPTABLE_DURATIONS)}")
     
