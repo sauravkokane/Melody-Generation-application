@@ -4,7 +4,9 @@ import random
 
 from music21 import converter
 
-KERN_DATASET_PATH = "Melodies/deutschl/test"
+TEST_DATASET_PATH = "Melodies/deutschl/test"
+KERN_DATASET_PATH = "Melodies"
+DATASET_PATH = "Dataset"
 ACCEPTABLE_DURATIONS = [
     0.25,    # 16th Note
     0.5,     # 8th note
@@ -45,8 +47,6 @@ def transpose(song):
     if not isinstance(key, m21.key.Key):
         key =  song.analyze("key")
 
-    print(key)
-
     # get interval for transposition. E.g., Bmaj -> Cmaj, Dmin -> Amin
     if key.mode == "major":
         interval = m21.interval.Interval(key.tonic, m21.pitch.Pitch("C"))
@@ -59,8 +59,8 @@ def transpose(song):
 
 def encode(song, time_step=0.25):
     # p = 60, d= 1.0 => [60, "_", "_", "_"]
-    
-    for event in song.flat.notesAndRests:
+    encoded_song = []
+    for event in song.flatten().notesAndRests:
         # handle notes
         if isinstance(event, m21.note.Note):
             symbol = event.pitch.midi   # 60
@@ -70,15 +70,27 @@ def encode(song, time_step=0.25):
             symbol = "r"
         
         # convert the note/rest into time series notation
-        steps = event.duration.quarterLength // time_step
-        
+        steps = int(event.duration.quarterLength // time_step)
+
+        for step in range(steps):
+            if step==0:
+                encoded_song.append(symbol)
+            else:
+                encoded_song.append("_")
+    # change encoded song from list to string
+    encoded_song = " ".join(map(str, encoded_song))
+    return encoded_song
+
 
 
 def preprocess(dataset_path):
     # Load the Folk songs
+    print("Song Loading is started")
     loaded_songs = load_songs_in_kern(dataset_path)
+    print(f"Loaded {len(loaded_songs)} songs.")
+    print("Encoding process may take some time\nPlease wait!!!")
 
-    for song in loaded_songs:
+    for i, song in enumerate(loaded_songs):
         # Filter out the songs which have unacceptable duration
         if not has_acceptable_duration(song, ACCEPTABLE_DURATIONS):
             continue
@@ -87,21 +99,14 @@ def preprocess(dataset_path):
         transposed_song = transpose(song)
 
         # Encode songs with music time series representation
+        encoded_song = encode(transposed_song)
 
+        # Save songs in a text file
+        save_path = os.path.join(DATASET_PATH, str(i))
+        with open(save_path, "w") as f:
+            f.write(encoded_song)
 
-        # Save songs in a test file
 
 
 if __name__ == "__main__":
-    songs = load_songs_in_kern(KERN_DATASET_PATH)
-    # list_of_songs = [ sg.metadata.title for sg in songs ]
-    # print(list_of_songs)
-    # random.shuffle(songs)
-    song = songs[1]
-    print(f"Loaded {len(songs)} songs.")
-    print(f"Has acceptable duration? {has_acceptable_duration(song, ACCEPTABLE_DURATIONS)}")
-    
-    song.show()
-
-    transposed_song = transpose(song)
-    transposed_song.show()
+    preprocess(KERN_DATASET_PATH)
