@@ -374,13 +374,7 @@ def generate_training_sequences(full_dataset_file_path, mapping_file_path, seque
 
     return inputs, targets
 
-def load_generated_sequences():
-    with open("songs_inputs.pkl", "rb") as f:
-        inputs = pickle.load(f)
-        
-    with open("songs_targets.pkl", "rb") as f:
-        targets = pickle.load(f)
-    return inputs, targets
+
 
 def main():
     # preprocess(KERN_DATASET_PATH)
