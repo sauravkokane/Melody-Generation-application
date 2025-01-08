@@ -1,6 +1,7 @@
 import os
 import json
 import pickle
+
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 import music21 as m21
@@ -8,26 +9,13 @@ import numpy as np
 import tensorflow as tf
 import keras
 
-
-TEST_DATASET_PATH = "Melodies/deutschl/test"
-KERN_DATASET_PATH = "Melodies"
-DATASET_PATH = "Dataset"
-FILE_DATASET_PATH = "file_dataset.txt"
-MAPPING_PATH = "mapping.json"
-DELIMETER = "/ "
-SEQUENCE_LENGTH = 64
-
-
-ACCEPTABLE_DURATIONS = [
-    0.25,    # 16th Note
-    0.5,     # 8th note
-    0.75,    # dotted note
-    1.0,     # quarter note
-    1.5,     # dotted quarter note
-    2,       # half note
-    3,       # three quarter-notes
-    4        # full note
-]
+from configurations import SEQUENCE_LENGTH, \
+    DELIMETER, \
+    ACCEPTABLE_DURATIONS, \
+    KERN_DATASET_PATH, \
+    DATASET_PATH, \
+    FILE_DATASET_PATH, \
+    MAPPING_PATH
 
 
 def load_songs_in_kern(dataset_path):
@@ -52,7 +40,7 @@ def load_songs_in_kern(dataset_path):
     songs = []
     for path, subdirs, files in os.walk(dataset_path):
         for file in files:
-            if file[-3:] == "krn" or file[-8:]=="musicxml":
+            if file[-3:] == "krn" or file[-8:] == "musicxml":
                 song = m21.converter.parse(os.path.join(path, file))
                 songs.append(song)
     return songs
@@ -101,14 +89,14 @@ def transpose(song):
         The transposed song in C major or A minor scale.
     """
 
-# get key from the score
+    # get key from the score
     parts = song.getElementsByClass(m21.stream.Part)
     measure0 = parts[0].getElementsByClass(m21.stream.Measure)
     key = measure0[0][4]
 
     # Predict key using music21
     if not isinstance(key, m21.key.Key):
-        key =  song.analyze("key")
+        key = song.analyze("key")
 
     # get interval for transposition. E.g., Bmaj -> Cmaj, Dmin -> Amin
     if key.mode == "major":
@@ -119,6 +107,7 @@ def transpose(song):
     # Transpose song by interval between scales
     transposed_song = song.transpose(interval)
     return transposed_song
+
 
 def encode(song, time_step=0.25):
     """
@@ -148,24 +137,23 @@ def encode(song, time_step=0.25):
     for event in song.flatten().notesAndRests:
         # handle notes
         if isinstance(event, m21.note.Note):
-            symbol = event.pitch.midi   # 60
-        
+            symbol = event.pitch.midi  # 60
+
         # handle rests
         elif isinstance(event, m21.note.Rest):
             symbol = "r"
-        
+
         # convert the note/rest into time series notation
         steps = int(event.duration.quarterLength // time_step)
 
         for step in range(steps):
-            if step==0:
+            if step == 0:
                 encoded_song.append(symbol)
             else:
                 encoded_song.append("_")
     # change encoded song from list to string
     encoded_song = " ".join(map(str, encoded_song))
     return encoded_song
-
 
 
 def preprocess(dataset_path):
@@ -204,10 +192,12 @@ def preprocess(dataset_path):
         with open(save_path, "w") as f:
             f.write(encoded_song)
 
+
 def load_encoded_song(file_path):
     with open(file_path, "r") as file:
         song = file.read()
     return song
+
 
 def create_single_file_dataset(dataset_path, full_dataset_file_path, delimiter, sequence_length):
     """
@@ -251,8 +241,8 @@ def create_single_file_dataset(dataset_path, full_dataset_file_path, delimiter, 
 
     return songs_str
 
-def create_mapping(songs, mapping_file_path):
 
+def create_mapping(songs, mapping_file_path):
     """
     Creates a mapping from unique symbols in the songs to numeric indices and saves it to a file.
 
@@ -284,8 +274,9 @@ def create_mapping(songs, mapping_file_path):
     # save the mapping in a text file
     with open(mapping_file_path, "w") as f:
         json.dump(mappings, f, indent=4)
-    
+
     return mappings
+
 
 def convert_songs_to_numeric(encoded_songs, mapping_file_path):
     """
@@ -317,7 +308,8 @@ def convert_songs_to_numeric(encoded_songs, mapping_file_path):
     numeric_songs = [mappings[symbol] for symbol in encoded_songs]
 
     return numeric_songs
-    
+
+
 def generate_training_sequences(full_dataset_file_path, mapping_file_path, sequence_length):
     """
     Generates training sequences from a file containing a sequence of songs.
@@ -375,9 +367,8 @@ def generate_training_sequences(full_dataset_file_path, mapping_file_path, seque
     return inputs, targets
 
 
-
 def main():
-    # preprocess(KERN_DATASET_PATH)
+    preprocess(KERN_DATASET_PATH)
     songs = create_single_file_dataset(DATASET_PATH, FILE_DATASET_PATH, DELIMETER, SEQUENCE_LENGTH)
     print(len(songs))
     create_mapping(songs, MAPPING_PATH)
@@ -386,12 +377,10 @@ def main():
     print(inputs.shape, targets.shape)
     # print memory size of inputs and targets
     print(inputs.nbytes, targets.nbytes)
-
-
     # We have shortage of memory, so we will save the inputs and targets to the disk
     with open("songs_inputs.pkl", "wb") as f:
         pickle.dump(inputs, f)
-        
+
     with open("songs_targets.pkl", "wb") as f:
         pickle.dump(targets, f)
 
