@@ -129,7 +129,20 @@ class MelodyGenerator:
     
 
     def save_melody(self, melody, step_duaration=0.25, format='midi', output_path="mel.mid"):
+        """
+        Saves a melody to a file in the specified format.
 
+        Parameters
+        ----------
+        melody : list
+            A list of symbols representing the melody to be saved.
+        step_duaration : float, optional
+            The duration of each step in the melody. Defaults to 0.25.
+        format : str, optional
+            The format to save the melody in. Defaults to 'midi'.
+        output_path : str, optional
+            The path to save the melody to. Defaults to 'mel.mid'.
+        """
         # Create a music21 stream
         stream = m21.stream.Stream()
 
@@ -167,7 +180,8 @@ class MelodyGenerator:
 if __name__ == "__main__":
    
     melody_generator = MelodyGenerator(model_path=SAVE_MODEL_PATH)
-    melody = melody_generator.generate_melody(seed, 500, 64, 0.7)
+    seed = "60 _ 60 _ 67 _ _ _ 67 _ _ _ 67 _ _ _ 67 _ _ _ 69 _ 65 _ 67 _ _ _ 69 _ 65 _ 69"
+    melody = melody_generator.generate_melody(seed, 500, 64, 0.76)
     print(melody)
     song = melody_generator.save_melody(melody, output_path="mel_model_k.mid")
     song.show()

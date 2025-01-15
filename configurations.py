@@ -1,7 +1,7 @@
 # constants
 
 SEQUENCE_LENGTH = 64
-OUTPUT_UNITS = 51
+OUTPUT_UNITS = 45
 NUM_UNITS = [256]
 LOSS = "sparse_categorical_crossentropy"
 LEARNING_RATE = 0.001

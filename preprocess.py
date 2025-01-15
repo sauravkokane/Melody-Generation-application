@@ -220,26 +220,19 @@ def create_single_file_dataset(dataset_path, full_dataset_file_path, delimiter, 
         The string containing the songs and the delimiters.
     """
     song_delimiter = delimiter * sequence_length
-    songs = []
+    songs = ""
     number_of_songs = 0
     for path, _, files in os.walk(dataset_path):
         for file in files:
             file_path = os.path.join(path, file)
             song = load_encoded_song(file_path)
-            songs.append(song)
+            songs = songs + song + " " + song_delimiter
             number_of_songs += 1
-            if number_of_songs > 1000:
-                break
-        if number_of_songs > 1000:
-            break
     print(f"Loaded {number_of_songs} songs.")
 
-    songs_str = ' '.join(songs + [song_delimiter])
-
     with open(full_dataset_file_path, 'w') as f:
-        f.write(songs_str)
-
-    return songs_str
+        f.write(songs)
+    return songs
 
 
 def create_mapping(songs, mapping_file_path):
