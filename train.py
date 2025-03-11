@@ -58,10 +58,29 @@ def build_model(output_units, num_units, loss_function, learning_rate):
 
     return model
 
+
 def train_model(
         output_units=OUTPUT_UNITS, num_units=NUM_UNITS, 
         loss_function=LOSS, learning_rate=LEARNING_RATE):
 
+    """
+    Trains a model using the generated sequences.
+
+    Parameters
+    ----------
+    output_units : int
+        The number of output units of the model.
+    num_units : list of int
+        The number of units in each layer of the model.
+    loss_function : str
+        The name of the loss function to use.
+    learning_rate : float
+        The learning rate of the optimizer.
+
+    Returns
+    -------
+    None
+    """
     # get generated sequences
     inputs, targets = load_generated_sequences()
 

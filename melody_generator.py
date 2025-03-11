@@ -119,9 +119,9 @@ class MelodyGenerator:
         # if temperature -> infinity, all probabilities will be the same, its like randomly selecting one of the symbols
         # if temperature -> 0, we will always select the symbol with the highest probability
         # if temperature = 1, we will sample from the given probabilities, which is the most common scenario
-        predictions = np.log(probabilities) / temperature
+        epsilon = 1e-10
+        predictions = np.log(predictions + epsilon) / temperature
         probabilities = np.exp(predictions) / np.sum(np.exp(predictions))
-
         choices = range(len(probabilities)) # [0, 1, 2, 3, ...., len(probabilities)]
         index = np.random.choice(choices, p=probabilities)
     
